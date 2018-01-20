@@ -22,11 +22,11 @@ def create_csv(stock='TSLA',start=dt.datetime(dt.datetime.now().year -1,dt.datet
     
     dataframe = web.DataReader(stock,'yahoo',start,end)
     
-    dataframe.to_csv('stock_dfs/{}.csv'.format(stock))
+    dataframe.to_csv('stock_dfs/Unmodified/{}.csv'.format(stock))
     
 def read_csv(stock='TSLA'):
     
-    df=pd.read_csv('stock_dfs/{}.csv'.format(stock),parse_dates=True,index_col=0)
+    df=pd.read_csv('stock_dfs/Unmodified/{}.csv'.format(stock),parse_dates=True,index_col=0)
     
     df['100ma']=df['Adj Close'].rolling(window=100,min_periods=0).mean()
     df['40ma']=df['Adj Close'].rolling(window=40,min_periods=0).mean()
@@ -75,9 +75,9 @@ def get_data_from_yahoo(reload_sp500=False):
     
     for ticker in tickers[:100]:
         try:
-            if not os.path.exists('stock_dfs/{}.csv'.format(ticker)):
+            if not os.path.exists('stock_dfs/Unmodified/{}.csv'.format(ticker)):
                 df=web.DataReader(ticker,'yahoo',start,end)
-                df.to_csv('stock_dfs/{}.csv'.format(ticker))
+                df.to_csv('stock_dfs/Unmodified/{}.csv'.format(ticker))
             #else:
                 #print('Already have {}'.format(ticker))
         except:
@@ -95,15 +95,15 @@ def test():
 def main(name):
     
     name=str(name)
-    start=dt.datetime(2017,1,1)
+    start=dt.datetime(2000,1,1)
     
     #get_data_from_yahoo()
     
-    #create_csv(name,start)
-    #read_csv(name)
+    create_csv(name,start)
+    read_csv(name)
     
-    test()
+    #test()
 
     plt.show()
     
-main('TSLA')
+main('MMM')
