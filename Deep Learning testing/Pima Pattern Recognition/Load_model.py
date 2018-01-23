@@ -31,7 +31,7 @@ model.compile(loss='binary_crossentropy',
 
 #The model and weights are loaded from the 150 epoch step and then sent for 
 #another 150 interations to get better accuracy
-model.fit(X,Y,epochs=1000,batch_size=32)
+model.fit(X,Y,epochs=100,batch_size=32)
 
 scores = model.evaluate(X,Y,verbose=0)
 

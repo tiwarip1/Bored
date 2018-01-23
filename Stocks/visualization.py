@@ -95,7 +95,7 @@ def test():
 def main(name):
     
     name=str(name)
-    start=dt.datetime(2000,1,1)
+    start=dt.datetime(2017,1,1)
     
     #get_data_from_yahoo()
     
@@ -106,4 +106,4 @@ def main(name):
 
     plt.show()
     
-main('MMM')
+main('WDC')
