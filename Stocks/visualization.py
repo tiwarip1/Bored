@@ -75,8 +75,6 @@ def save_sp500_tickers():
             
     with open('sp500tickers.pickle','wb') as f:
         pickle.dump(stock_names,f)
-        
-    print(stock_names)
     
     return stock_names
 
@@ -249,6 +247,7 @@ def main(name):
     #start=dt.datetime(2017,1,1)
     #end = dt.datetime(2018,1,1)
     
+    save_sp500_tickers()
     #get_data_from_yahoo(True)
     
     #create_csv(name,start,end,'Testing')
@@ -259,7 +258,7 @@ def main(name):
     #testing_40ma_20ma(name)
     #add_double_derivative(name) #Fix this
     #record_testing_results()
-    add_values()
+    #add_values()
     
 try:
     stock = 'A'

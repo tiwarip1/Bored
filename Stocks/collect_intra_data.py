@@ -56,6 +56,9 @@ def collect_data(ticker):
     
     cont = True
     
+    if not os.path.exists('../../stored_data/'):
+        os.makedirs('../../stored_data/')
+    
     if '{}.csv'.format(ticker) in os.listdir('../../stored_data/'): 
         df = get_google_finance_intraday(ticker,300)
         if 'Date' in df.columns:
@@ -102,6 +105,8 @@ def collect_data(ticker):
             df3['Date']= df3.index
             df3['Date'] = pd.to_datetime(df3['Date'])
         df3 = df3.loc[:, ~df3.columns.str.contains('^Unnamed')]
-        if os.path.exists('../../stored_data/{}.csv'.format(ticker)):
-            os.remove('../../stored_data/{}.csv'.format(ticker))
+
+        os.remove('../../stored_data/{}.csv'.format(ticker))
         df3.to_csv('../../stored_data/{}.csv'.format(ticker))
+        
+collect_data('TSLA')
