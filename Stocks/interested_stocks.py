@@ -19,7 +19,10 @@ def collect_sp500():
     list_500 = save_sp500_tickers()
 
     for i in list_500:
-        collect_data(i)
+        try:
+            collect_data(i)
+        except IndexError:
+            continue
 
 def is_weekday():
 
@@ -28,7 +31,7 @@ def is_weekday():
         return True
     else:
         return False
-            
+
 def update_data_every_5_minutes():
     
     while True:
@@ -39,7 +42,6 @@ def update_data_every_5_minutes():
             print('yaas')
             try:
                 collect_sp500()
-                time.sleep(300)
             except KeyboardInterrupt:
                 print('Manual break by user')
                 return

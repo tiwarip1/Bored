@@ -19,8 +19,8 @@ import time
 
 style.use('ggplot')
 
-def create_csv(stock='TSLA',start=dt.datetime(2017,1,1),now = dt.datetime.now()\
-               ,location = 'Unmodified'):
+def create_csv(stock='TSLA',start=dt.datetime(2017,1,1),now = \
+               dt.datetime.now(),location = 'Unmodified'):
     
     '''This function takes values from yahoo finance and turns it into a 
     pandas database, saving it as a csv in a folder'''
@@ -32,33 +32,34 @@ def create_csv(stock='TSLA',start=dt.datetime(2017,1,1),now = dt.datetime.now()\
     
     dataframe.to_csv('stock_dfs/{}/{}.csv'.format(str(location),\
                             str(stock)))
-def read_csv(stock='TSLA'):
+def read_csv(stock='TSLA',plot = True,location = 'Unmodified'):
     
     '''This function reads the data from the csv stored by create_csv and adds
     some rolling averages and plots it all'''
     
     plt.figure(figsize = [20,10])
-    df=pd.read_csv('stock_dfs/Unmodified/{}.csv'.format(stock),parse_dates=True,\
-                   index_col=0)
+    df=pd.read_csv('stock_dfs/{}/{}.csv'.format(location,stock),\
+                   parse_dates=True,index_col=0)
     
     df['300ma']=df['Close'].rolling(window=300,min_periods=0).mean()
     df['100ma']=df['Close'].rolling(window=100,min_periods=0).mean()
     df['40ma']=df['Close'].rolling(window=40,min_periods=0).mean()
     df['20ma']=df['Close'].rolling(window=20,min_periods=0).mean()
-    
-    ax1=plt.subplot2grid((6,3),(0,0),rowspan=5,colspan=3,ylabel='Stock Price',\
-                         title=stock)
-    ax2=plt.subplot2grid((6,3),(5,0),rowspan=1,colspan=3,sharex=ax1)
-    
-    ax1.plot(df.index,df['Close'])
-    ax1.plot(df.index,df['300ma'],label="300 day")
-    ax1.plot(df.index,df['100ma'],label="100 day")
-    ax1.plot(df.index,df['40ma'],label="40 day")
-    ax1.plot(df.index,df['20ma'],label="20 day")
-    ax1.legend(loc='upper right')
-    ax2.plot(df.index,df['Volume'],color='black')
-    plt.show()
-    df.to_csv('stock_dfs/Unmodified/{}.csv'.format(stock))
+    if plot:
+        ax1=plt.subplot2grid((6,3),(0,0),rowspan=5,colspan=3,\
+                             ylabel='Stock Price',\
+                             title=stock)
+        ax2=plt.subplot2grid((6,3),(5,0),rowspan=1,colspan=3,sharex=ax1)
+        
+        ax1.plot(df.index,df['Close'])
+        ax1.plot(df.index,df['300ma'],label="300 day")
+        ax1.plot(df.index,df['100ma'],label="100 day")
+        ax1.plot(df.index,df['40ma'],label="40 day")
+        ax1.plot(df.index,df['20ma'],label="20 day")
+        ax1.legend(loc='upper right')
+        ax2.plot(df.index,df['Volume'],color='black')
+        plt.show()
+    df.to_csv('stock_dfs/{}/{}.csv'.format(location,stock))
     
 def save_sp500_tickers():
     
@@ -176,7 +177,8 @@ def add_double_derivative(stock='TSLA'):
           float(previous_row['Close'])+float(row['Close']))/4
         previous_previous_row=previous_row
         previous_row=row
-    #print(df)
+    
+    return df['double_derivative']
     
 def record_testing_results():
     
@@ -210,7 +212,8 @@ def add_values():
             try:
                 last_item = pd.to_datetime(df['Date'].loc[len(df['Date'])-1])
             except KeyError:
-                create_csv(stock,dt.datetime(2017,1,1),dt.datetime.now(),'Testing')
+                create_csv(stock,dt.datetime(2017,1,1),dt.datetime.now(),\
+                           'Testing')
                 continue
             start = last_item
             

@@ -2,6 +2,7 @@ import csv
 import datetime
 import re
 import os
+import codecs
 
 import pandas as pd
 import requests
@@ -31,7 +32,7 @@ def get_google_finance_intraday(ticker, period=300, days=60):
           '?i={period}&p={days}d&f=d,o,h,l,c,v&df=cpct&q={ticker}'\
           .format(ticker=ticker,period=period,days=days)
     page = requests.get(uri)
-    reader = csv.reader(page.text.splitlines())
+    reader = csv.reader(codecs.iterdecode(page.content.splitlines(), "utf-8"))
     columns = ['Open', 'High', 'Low', 'Close', 'Volume']
     rows = []
     times = []
@@ -50,6 +51,32 @@ def get_google_finance_intraday(ticker, period=300, days=60):
     else:
         return pd.DataFrame(rows, index=pd.DatetimeIndex(times, name='Date'))
     
+    
+def add_rolling_average(df,n):
+    '''This is a general function that makes a rolling average over n
+    data points'''
+    
+    df['{}ma'.format(int(n/12))]=df['Close'].rolling(window=n,min_periods=0).mean()
+    return df['{}ma'.format(int(n/12))]
+
+def add_double_derivative(df):
+    
+    '''More testing to see if numerical integration could be useful for finding
+    trends'''
+    #This doesn't work properly, fix it later
+    
+    previous_row = df.iloc[0]
+    previous_previous_row = df.iloc[0] 
+    
+    for index,row in df.iterrows():
+        #print(previous_previous_row['Adj Close'],previous_row['Adj Close'],\
+        #row['Adj Close'])
+        df['double_derivative']=(float(previous_previous_row['Close'])-2*\
+          float(previous_row['Close'])+float(row['Close']))/4
+        previous_previous_row=previous_row
+        previous_row=row
+    
+    return df['double_derivative']
     
 def collect_data(ticker):
     '''This function will add data to a database over time'''
@@ -97,8 +124,6 @@ def collect_data(ticker):
             df2['Date'] = pd.to_datetime(df2['Date'])
         mask = df2['Date']>datetime_index
         df2 = df2[mask]
-        #df1.drop('Date',axis = 1)
-        #df2.drop('Date',axis = 1)
         df3 = pd.concat([df1,df2],ignore_index = True)
         if 'Date' in df3.columns:
             pass
@@ -110,7 +135,13 @@ def collect_data(ticker):
             df3 = df3.drop('Date.1',1)
         except ValueError:
             pass
+        df3['300ma']=add_rolling_average(df3,300*12)
+        df3['100ma']=add_rolling_average(df3,100*12)
+        df3['60ma']=add_rolling_average(df3,60*12)
+        df3['40ma']=add_rolling_average(df3,40*12)
+        df3['20ma']=add_rolling_average(df3,20*12)
+        df3['double_derivative']=add_double_derivative(df)
         os.remove('../../stored_data/{}.csv'.format(ticker))
         df3.to_csv('../../stored_data/{}.csv'.format(ticker))
         
-collect_data('ZION')
+collect_data('TSLA')
