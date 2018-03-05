@@ -32,7 +32,7 @@ def is_weekday():
 def update_data_every_5_minutes():
     
     while True:
-        #time.sleep(300)
+
         now = dt.datetime.now()
         if is_weekday()  and \
         dt.time(9,30) <= now.time() and now.time() <= dt.time(16,30):

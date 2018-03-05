@@ -97,8 +97,8 @@ def collect_data(ticker):
             df2['Date'] = pd.to_datetime(df2['Date'])
         mask = df2['Date']>datetime_index
         df2 = df2[mask]
-        df1.drop('Date',axis = 1)
-        df2.drop('Date',axis = 1)
+        #df1.drop('Date',axis = 1)
+        #df2.drop('Date',axis = 1)
         df3 = pd.concat([df1,df2],ignore_index = True)
         if 'Date' in df3.columns:
             pass
@@ -106,8 +106,11 @@ def collect_data(ticker):
             df3['Date']= df3.index
             df3['Date'] = pd.to_datetime(df3['Date'])
         df3 = df3.loc[:, ~df3.columns.str.contains('^Unnamed')]
-
+        try:
+            df3 = df3.drop('Date.1',1)
+        except ValueError:
+            pass
         os.remove('../../stored_data/{}.csv'.format(ticker))
         df3.to_csv('../../stored_data/{}.csv'.format(ticker))
         
-collect_data('TSLA')
+collect_data('ZION')
