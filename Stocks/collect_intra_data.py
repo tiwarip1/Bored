@@ -59,7 +59,8 @@ def collect_data(ticker):
     if not os.path.exists('../../stored_data/'):
         os.makedirs('../../stored_data/')
     
-    if '{}.csv'.format(ticker) in os.listdir('../../stored_data/'): 
+    if '{}.csv'.format(ticker) in os.listdir('../../stored_data/'):
+        print(ticker)
         df = get_google_finance_intraday(ticker,300)
         if 'Date' in df.columns:
             pass

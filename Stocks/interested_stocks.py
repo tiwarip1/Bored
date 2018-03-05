@@ -20,14 +20,22 @@ def collect_sp500():
 
     for i in list_500:
         collect_data(i)
+
+def is_weekday():
+
+    now = dt.datetime.today()
+    if now.date().weekday()<5:
+        return True
+    else:
+        return False
             
 def update_data_every_5_minutes():
     
     while True:
-        time.sleep(300)
+        #time.sleep(300)
         now = dt.datetime.now()
-        if dt.datetime.now()==dt.datetime.weekday and \
-        dt.time(9,30) <= now.time() <= dt.time(16,30):
+        if is_weekday()  and \
+        dt.time(9,30) <= now.time() and now.time() <= dt.time(16,30):
             print('yaas')
             try:
                 collect_sp500()
@@ -35,5 +43,8 @@ def update_data_every_5_minutes():
             except KeyboardInterrupt:
                 print('Manual break by user')
                 return
+        print('sleepytime')
+        time.sleep(300)
+    
 
 update_data_every_5_minutes()
