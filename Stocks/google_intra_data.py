@@ -1,6 +1,11 @@
 import bs4 as bs
 import requests
+import datetime as dt
+import pandas as pd
+import os
 
+from visualization import save_sp500_tickers
+from interested_stocks import is_worktime
 
 def nasdaq_data(ticker = 'TSLA'):
     '''still need to add the additional data for csv's'''
@@ -15,11 +20,24 @@ def nasdaq_data(ticker = 'TSLA'):
         row=list(row)
         row_l.append(row)
         
-    returned = []
-    returned.append(float(row_l[0][0]))
-    returned.append(int(row_l[4][0].replace(',','')))
-    print(returned)
+    current_time = dt.datetime.today().replace(second = 0,microsecond = 0)
+    df = pd.DataFrame(data = {'Close':float(row_l[0][0]),'Volume':int(row_l[4][0].replace(',',''))},index = [0])
+    df['Date'] = pd.to_datetime(current_time)
     
-    return returned
+    return df
+
+def add_to_existing_csv(df,ticker):
+    
+    if os.exists
         
-nasdaq_data()
+def collect_nasdaq():
+    
+    list_500 = save_sp500_tickers
+    
+    for i in list_500:
+        current_time = dt.datetime.now()
+        
+        if is_worktime():
+            df1 = nasdaq_data(i)
+            
+collect_nasdaq()

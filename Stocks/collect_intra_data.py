@@ -107,7 +107,10 @@ def collect_data(ticker):
         cont = False
     
     df1 = pd.read_csv('../../stored_data/{}.csv'.format(ticker))
-    df1 = df1[np.isfinite(df1['Open'])]
+    try:
+        df1 = df1[np.isfinite(df1['Close'])]
+    except KeyError:
+        pass
     time_str = df1.iloc[len(df1)-1]['Date']
     try:
         datetime_index = dt.datetime.strptime(time_str,'%Y-%m-%d %H:%M:%S')
@@ -135,13 +138,25 @@ def collect_data(ticker):
             df3 = df3.drop('Date.1',1)
         except ValueError:
             pass
-        df3['300ma']=add_rolling_average(df3,300*12)
-        df3['100ma']=add_rolling_average(df3,100*12)
-        df3['60ma']=add_rolling_average(df3,60*12)
-        df3['40ma']=add_rolling_average(df3,40*12)
-        df3['20ma']=add_rolling_average(df3,20*12)
-        df3['double_derivative']=add_double_derivative(df)
+        
+        #df3['300ma']=add_rolling_average(df3,300*12)
+        #df3['100ma']=add_rolling_average(df3,100*12)
+        #df3['60ma']=add_rolling_average(df3,60*12)
+        #df3['40ma']=add_rolling_average(df3,40*12)
+        #df3['20ma']=add_rolling_average(df3,20*12)
+
+        try:
+            df3 = df3.drop('Open',1)
+            df3 = df3.drop('High',1)
+            df3 = df3.drop('Low',1)
+            df3 = df3.drop('300ma',1)
+            df3 = df3.drop('100ma',1)
+            df3 = df3.drop('60ma',1)
+            df3 = df3.drop('40ma',1)
+            df3 = df3.drop('20ma',1)
+        except ValueError:
+            pass
         os.remove('../../stored_data/{}.csv'.format(ticker))
         df3.to_csv('../../stored_data/{}.csv'.format(ticker))
         
-collect_data('TSLA')
+collect_data('BBT')

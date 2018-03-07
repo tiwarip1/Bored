@@ -31,14 +31,21 @@ def is_weekday():
         return True
     else:
         return False
+    
+def is_worktime():
 
-def update_data_every_5_minutes():
+    now = dt.datetime.today()
+    if now.date().weekday()<5 and dt.time(9,30) <= now.time() and \
+    now.time() <= dt.time(16,30):
+        return True
+    else:
+        return False
+
+def update_data_every_n_minutes(n = 15):
     
     while True:
 
-        now = dt.datetime.now()
-        if is_weekday()  and \
-        dt.time(9,30) <= now.time() and now.time() <= dt.time(16,30):
+        if is_worktime() :
             print('yaas')
             try:
                 collect_sp500()
@@ -46,7 +53,7 @@ def update_data_every_5_minutes():
                 print('Manual break by user')
                 return
         print('sleepytime')
-        time.sleep(300)
+        time.sleep(n * 60)
     
 
-update_data_every_5_minutes()
+update_data_every_n_minutes(15)
