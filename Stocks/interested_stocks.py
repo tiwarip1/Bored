@@ -33,7 +33,7 @@ def is_weekday():
     else:
         return False
 
-def update_data_every_n_minutes(n = 15):
+def update_data_every_n_minutes():
     
     while True:
 
@@ -45,6 +45,5 @@ def update_data_every_n_minutes(n = 15):
                 print('Manual break by user')
                 return
         print('sleepytime')
-        time.sleep(n * 60)
 
-update_data_every_n_minutes(5)
+update_data_every_n_minutes()

@@ -73,4 +73,3 @@ def nasdaq():
         print(i)
         if is_worktime():
             add_to_existing_csv(i)
-            time.sleep(5)
