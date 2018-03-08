@@ -32,7 +32,7 @@ def create_csv(stock='TSLA',start=dt.datetime(2017,1,1),now = \
     
     dataframe.to_csv('stock_dfs/{}/{}.csv'.format(str(location),\
                             str(stock)))
-def read_csv(stock='TSLA',plot = True,location = 'Unmodified'):
+def read_csv(stock='TSLA',plot = True,location = 'Unmodified',Close='Adj Close'):
     
     '''This function reads the data from the csv stored by create_csv and adds
     some rolling averages and plots it all'''
@@ -41,17 +41,17 @@ def read_csv(stock='TSLA',plot = True,location = 'Unmodified'):
     df=pd.read_csv('stock_dfs/{}/{}.csv'.format(location,stock),\
                    parse_dates=True,index_col=0)
     
-    df['300ma']=df['Close'].rolling(window=300,min_periods=0).mean()
-    df['100ma']=df['Close'].rolling(window=100,min_periods=0).mean()
-    df['40ma']=df['Close'].rolling(window=40,min_periods=0).mean()
-    df['20ma']=df['Close'].rolling(window=20,min_periods=0).mean()
+    df['300ma']=df[Close].rolling(window=300,min_periods=0).mean()
+    df['100ma']=df[Close].rolling(window=100,min_periods=0).mean()
+    df['40ma']=df[Close].rolling(window=40,min_periods=0).mean()
+    df['20ma']=df[Close].rolling(window=20,min_periods=0).mean()
     if plot:
         ax1=plt.subplot2grid((6,3),(0,0),rowspan=5,colspan=3,\
                              ylabel='Stock Price',\
                              title=stock)
         ax2=plt.subplot2grid((6,3),(5,0),rowspan=1,colspan=3,sharex=ax1)
         
-        ax1.plot(df.index,df['Close'])
+        ax1.plot(df.index,df[Close])
         ax1.plot(df.index,df['300ma'],label="300 day")
         ax1.plot(df.index,df['100ma'],label="100 day")
         ax1.plot(df.index,df['40ma'],label="40 day")
@@ -243,18 +243,28 @@ def add_values():
             #print(df)
             df.to_csv('stock_dfs/Testing/{}.csv'.format(stock))
             break
+        
+def read_new(ticker):
+    
+    fig = plt.figure(figsize = [20,10])
+    directory = "../../stored_data/{}.csv".format(ticker)
+    df = pd.read_csv(directory,\
+                   parse_dates=False,index_col=0)
+    plt.plot(df['Close'])
     
 def main(name):
     
     name=str(name)
-    #start=dt.datetime(2017,1,1)
+    start=dt.datetime(2017,12,20)
     #end = dt.datetime(2018,1,1)
+    end = dt.datetime.today()
     
-    save_sp500_tickers()
+    #save_sp500_tickers()
     #get_data_from_yahoo(True)
     
-    #create_csv(name,start,end,'Testing')
-    #read_csv(name)
+    create_csv(name,start,end,'Unmodified')
+    #read_csv(name,True,'Unmodified','close')
+    read_new(name)
     #plt.show()
     #testing_100ma_20ma(name)
     #testing_100ma_40ma(name)
@@ -262,9 +272,11 @@ def main(name):
     #add_double_derivative(name) #Fix this
     #record_testing_results()
     #add_values()
-    
-try:
-    stock = 'A'
-    main(stock)
-except:
-    main(stock)
+# =============================================================================
+#     
+# try:
+#     stock = 'A'
+#     main(stock)
+# except:
+#     main(stock)
+# =============================================================================

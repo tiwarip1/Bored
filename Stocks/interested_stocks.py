@@ -1,5 +1,6 @@
 from collect_intra_data import collect_data
 from visualization import save_sp500_tickers
+from google_intra_data import nasdaq,is_worktime
 import os
 import time
 import datetime as dt
@@ -31,15 +32,6 @@ def is_weekday():
         return True
     else:
         return False
-    
-def is_worktime():
-
-    now = dt.datetime.today()
-    if now.date().weekday()<5 and dt.time(9,30) <= now.time() and \
-    now.time() <= dt.time(16,30):
-        return True
-    else:
-        return False
 
 def update_data_every_n_minutes(n = 15):
     
@@ -48,12 +40,11 @@ def update_data_every_n_minutes(n = 15):
         if is_worktime() :
             print('yaas')
             try:
-                collect_sp500()
+                nasdaq()
             except KeyboardInterrupt:
                 print('Manual break by user')
                 return
         print('sleepytime')
         time.sleep(n * 60)
-    
 
-update_data_every_n_minutes(15)
+update_data_every_n_minutes(5)

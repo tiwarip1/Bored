@@ -88,7 +88,7 @@ def collect_data(ticker):
     
     if '{}.csv'.format(ticker) in os.listdir('../../stored_data/'):
         print(ticker)
-        df = get_google_finance_intraday(ticker,300)
+        df = get_google_finance_intraday(ticker,300,2)
         if 'Date' in df.columns:
             pass
         else:
@@ -159,4 +159,4 @@ def collect_data(ticker):
         os.remove('../../stored_data/{}.csv'.format(ticker))
         df3.to_csv('../../stored_data/{}.csv'.format(ticker))
         
-collect_data('BBT')
+#collect_data('BBT')
