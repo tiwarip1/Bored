@@ -65,7 +65,7 @@ def add_to_existing_csv(ticker):
     for i in unwanted:
         df3 = remove_unwanted_columns(df3,i)
         
-    if df3:
+    if type(df3)!=int:
         os.remove('../../stored_data/{}.csv'.format(ticker))
         df3.to_csv('../../stored_data/{}.csv'.format(ticker))
     
@@ -79,5 +79,3 @@ def nasdaq():
         print(i)
         if is_worktime():
             add_to_existing_csv(i)
-            
-nasdaq_data('SNI')
