@@ -4,10 +4,11 @@ import datetime as dt
 import pandas as pd
 import os
 import time
+import pexpect
 
 from visualization import save_sp500_tickers
 
-def nasdaq_data(ticker = 'TSLA'):
+def nasdaq_data(num,ticker = 'TSLA'):
     
     session = requests.Session()
     url = 'https://www.nasdaq.com/symbol/{}/real-time'.format(ticker)
@@ -16,9 +17,11 @@ def nasdaq_data(ticker = 'TSLA'):
     except requests.ConnectionError:
         print('problem')
         session.close()
-        time.sleep(10)
-        session = requests.Session()
-        page = requests.get(url).text
+        time.sleep(60)
+        child = pexpect.spawn('python interested.py')
+        time.sleep(1)
+        child.expect('Which number? (0-3): ')
+        child.sendline(num)
     soup = bs.BeautifulSoup(page,'lxml')
     table = soup.find('div',{'class':'genTable'})
     
@@ -54,9 +57,9 @@ def is_worktime():
     else:
         return False
 
-def add_to_existing_csv(ticker):
+def add_to_existing_csv(ticker,num):
     
-    df1 = nasdaq_data(ticker)
+    df1 = nasdaq_data(num,ticker)
     try:
         df = pd.read_csv('../../stored_data/{}.csv'.format(ticker))
     except FileNotFoundError:
@@ -84,4 +87,4 @@ def nasdaq(num):
     for i in list_500[start:end]:#[start:end]:
         print(i)
         if is_worktime():
-            add_to_existing_csv(i)
+            add_to_existing_csv(i,num)
