@@ -1,5 +1,7 @@
 import pandas as pd
 import os
+from os import listdir
+from os.path import isfile, join
 
 def add_rolling_average(df,n):
     '''This is a general function that makes a rolling average over n
@@ -17,9 +19,12 @@ def retrieve_csv(ticker):
 
 def list_files_with_data():
     
-    for i in os.path('../../stored_data'):
-        print(i)
+    mypath = '../../stored_data'
+    onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+    print(onlyfiles)
 
 def main():
     
     list_files_with_data()
+    
+main()

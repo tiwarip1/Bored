@@ -15,6 +15,9 @@ def nasdaq_data(ticker = 'TSLA'):
         page = requests.get(url).text
     except requests.ConnectionError:
         print('problem')
+        session.close()
+        time.sleep(10)
+        session = requests.Session()
         page = requests.get(url).text
     soup = bs.BeautifulSoup(page,'lxml')
     table = soup.find('div',{'class':'genTable'})
