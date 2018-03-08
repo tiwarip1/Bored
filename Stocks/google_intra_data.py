@@ -58,7 +58,10 @@ def add_to_existing_csv(ticker):
         df = pd.read_csv('../../stored_data/{}.csv'.format(ticker))
     except FileNotFoundError:
         return 
-    df3 = pd.concat([df,df1],ignore_index = True)
+    try:
+        df3 = pd.concat([df,df1],ignore_index = True)
+    except TypeError:
+        return
     df3 = df3.loc[:, ~df3.columns.str.contains('^Unnamed')]
     unwanted = ['300ma','100ma','60ma','40ma','20ma','double_derivative',\
                 'Open','High','Low']
@@ -70,12 +73,12 @@ def add_to_existing_csv(ticker):
         df3.to_csv('../../stored_data/{}.csv'.format(ticker))
     
         
-def nasdaq():
+def nasdaq(num):
     
     list_500 = save_sp500_tickers()
-    #start = num*125
-    #end = (num+1)*125
-    for i in list_500:#[start:end]:
+    start = num*125
+    end = (num+1)*125
+    for i in list_500[start:end]:#[start:end]:
         print(i)
         if is_worktime():
             add_to_existing_csv(i)

@@ -35,12 +35,13 @@ def is_weekday():
 
 def update_data_every_n_minutes():
     
+    num = int(input("Which number? (0-3): "))
     while True:
 
         if is_worktime() :
             print('yaas')
             try:
-                nasdaq()
+                nasdaq(num)
             except KeyboardInterrupt:
                 print('Manual break by user')
                 return
