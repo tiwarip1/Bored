@@ -19,6 +19,9 @@ def nasdaq_data(ticker = 'TSLA'):
     soup = bs.BeautifulSoup(page,'lxml')
     table = soup.find('div',{'class':'genTable'})
     
+    if type(table)==type(None):
+        return 0
+    
     row_l = []
     for row in table.findAll('span')[8:]:
         row=list(row)
@@ -61,8 +64,11 @@ def add_to_existing_csv(ticker):
                 'Open','High','Low']
     for i in unwanted:
         df3 = remove_unwanted_columns(df3,i)
-    os.remove('../../stored_data/{}.csv'.format(ticker))
-    df3.to_csv('../../stored_data/{}.csv'.format(ticker))
+        
+    if df3:
+        os.remove('../../stored_data/{}.csv'.format(ticker))
+        df3.to_csv('../../stored_data/{}.csv'.format(ticker))
+    
         
 def nasdaq():
     
@@ -73,3 +79,5 @@ def nasdaq():
         print(i)
         if is_worktime():
             add_to_existing_csv(i)
+            
+nasdaq_data('SNI')
