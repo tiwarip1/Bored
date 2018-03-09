@@ -24,6 +24,7 @@ def collect_sp500():
             collect_data(i)
         except IndexError:
             continue
+        time.sleep(5)
 
 def is_weekday():
 
@@ -33,18 +34,18 @@ def is_weekday():
     else:
         return False
 
-def update_data_every_n_minutes():
+def update_data_every_n_minutes(n):
     
-    num = int(input("Which number? (0-3): "))
     while True:
 
         if is_worktime() :
             print('yaas')
             try:
-                nasdaq(num)
+                collect_sp500()
             except KeyboardInterrupt:
                 print('Manual break by user')
                 return
         print('sleepytime')
+        time.sleep(n*60)
 
-update_data_every_n_minutes()
+update_data_every_n_minutes(60)

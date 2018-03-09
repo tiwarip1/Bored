@@ -138,12 +138,6 @@ def collect_data(ticker):
             df3 = df3.drop('Date.1',1)
         except ValueError:
             pass
-        
-        #df3['300ma']=add_rolling_average(df3,300*12)
-        #df3['100ma']=add_rolling_average(df3,100*12)
-        #df3['60ma']=add_rolling_average(df3,60*12)
-        #df3['40ma']=add_rolling_average(df3,40*12)
-        #df3['20ma']=add_rolling_average(df3,20*12)
 
         try:
             df3 = df3.drop('Open',1)
