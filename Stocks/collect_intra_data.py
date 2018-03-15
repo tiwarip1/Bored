@@ -50,14 +50,6 @@ def get_google_finance_intraday(ticker, period=300, days=60):
                             columns=columns)
     else:
         return pd.DataFrame(rows, index=pd.DatetimeIndex(times, name='Date'))
-    
-    
-def add_rolling_average(df,n):
-    '''This is a general function that makes a rolling average over n
-    data points'''
-    
-    df['{}ma'.format(int(n/12))]=df['Close'].rolling(window=n,min_periods=0).mean()
-    return df['{}ma'.format(int(n/12))]
 
 def add_double_derivative(df):
     
@@ -153,4 +145,4 @@ def collect_data(ticker):
         os.remove('../../stored_data/{}.csv'.format(ticker))
         df3.to_csv('../../stored_data/{}.csv'.format(ticker))
         
-#collect_data('BBT')
+collect_data('AMD')
