@@ -24,16 +24,20 @@ def testing_rolling_data(df,ticker):
             df1 = add_rolling_average(df1,j)
             columns.append(check_rolling_returns(df1,i,j))
         rows.append(columns)
-        
+
+    fig=plt.figure(figsize=[20,10])
     plt.imshow(rows)
     plt.colorbar()
     plt.title(str(ticker))
     ax = plt.gca()
-    ax.set_xticklabels(np.arange(5,70,10))
+    ax.set_xticklabels(np.arange(-5,70,10))
     ax.set_xlabel('selling')
-    ax.set_yticklabels(np.arange(5,70,10))
+    ax.set_yticklabels(np.arange(-5,70,10))
     ax.set_ylabel('buying')
-    plt.show()
+    #plt.show()
+    if not os.path.exists('Testing/'):
+        os.mkdir('Testing')
+    fig.savefig('Testing/{}.png'.format(ticker),dpi=200,bbox_inches='tight')
             
 def check_rolling_returns(df,buying,selling):
     
@@ -73,6 +77,7 @@ def main():
     for file in os.listdir("../../stored_data/"):
         if file.endswith(".csv"):
             ticker = file[:file.find(".csv")]
+            print(ticker)
             df = pd.read_csv('../../stored_data/{}.csv'.format(ticker))
             testing_rolling_data(df,ticker)
             #df = add_rolling_average(df,20)
