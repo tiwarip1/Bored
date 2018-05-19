@@ -3,6 +3,7 @@ import datetime
 import re
 import os
 import codecs
+import time
 
 import pandas as pd
 import requests
@@ -36,6 +37,21 @@ def get_google_finance_intraday(ticker, period=300, days=60):
     columns = ['Open', 'High', 'Low', 'Close', 'Volume']
     rows = []
     times = []
+    try:
+        for row in reader:
+            break
+    except:
+        print("Ran into a UnicodeEncode Error, but it was dealt with")
+        time.sleep(3600)
+        uri = 'https://finance.google.com/finance/getprices' \
+          '?i={period}&p={days}d&f=d,o,h,l,c,v&df=cpct&q={ticker}'\
+          .format(ticker=ticker,period=period,days=days)
+        page = requests.get(uri)
+        reader = csv.reader(codecs.iterdecode(page.content.splitlines(), "utf-8"))
+        columns = ['Open', 'High', 'Low', 'Close', 'Volume']
+        rows = []
+        times = []
+    
     for row in reader:
         if re.match('^[a\d]', row[0]):
             if row[0].startswith('a'):
@@ -44,20 +60,22 @@ def get_google_finance_intraday(ticker, period=300, days=60):
             else:
                 times.append(start+datetime.timedelta(seconds=period*\
                                                       int(row[0])))
-            rows.append(map(float, row[1:]))
+                rows.append(map(float, row[1:]))
     if len(rows):
-        return pd.DataFrame(rows, index=pd.DatetimeIndex(times, name='Date'),
+        try:
+            return pd.DataFrame(rows, index=pd.DatetimeIndex(times, name='Date'),
+                            columns=columns)
+        except ValueError:
+            if len(rows)<len(times):
+                difference_index = -len(rows)+len(times)
+                times=times[difference_index:]
+            elif len(rows)>len(times):
+                difference_index = len(rows)-len(times)
+                rows=rows[difference_index:]
+            return pd.DataFrame(rows, index=pd.DatetimeIndex(times, name='Date'),
                             columns=columns)
     else:
         return pd.DataFrame(rows, index=pd.DatetimeIndex(times, name='Date'))
-    
-    
-def add_rolling_average(df,n):
-    '''This is a general function that makes a rolling average over n
-    data points'''
-    
-    df['{}ma'.format(int(n/12))]=df['Close'].rolling(window=n,min_periods=0).mean()
-    return df['{}ma'.format(int(n/12))]
 
 def add_double_derivative(df):
     
@@ -96,6 +114,7 @@ def collect_data(ticker):
             df['Date'] = pd.to_datetime(df['Date'])
         df.index.name = 'Date'
     else:
+        print(ticker)
         df = get_google_finance_intraday(ticker,300,300)
         if 'Date' in df.columns:
             pass
@@ -153,4 +172,4 @@ def collect_data(ticker):
         os.remove('../../stored_data/{}.csv'.format(ticker))
         df3.to_csv('../../stored_data/{}.csv'.format(ticker))
         
-#collect_data('BBT')
+collect_data('AMD')

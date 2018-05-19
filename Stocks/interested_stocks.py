@@ -37,7 +37,7 @@ def is_weekday():
 def update_data_every_n_minutes(n):
     
     while True:
-
+        tock = time.time()
         if is_worktime() :
             print('yaas')
             try:
@@ -46,6 +46,9 @@ def update_data_every_n_minutes(n):
                 print('Manual break by user')
                 return
         print('sleepytime')
-        time.sleep(n*60)
+        tick=time.time()
+
+        if tick-tock<n*60:
+            time.sleep(n*60-(tick-tock))
 
 update_data_every_n_minutes(60)
