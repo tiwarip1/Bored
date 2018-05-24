@@ -246,11 +246,11 @@ def add_values():
         
 def read_new(ticker):
     
-    fig = plt.figure(figsize = [20,10])
+    #fig = plt.figure(figsize = [20,10])
     directory = "../../stored_data/{}.csv".format(ticker)
     df = pd.read_csv(directory,\
                    parse_dates=False,index_col=0)
-    plt.plot(df['Close'])
+    plt.plot(df['Date'],df['Close'])
     
 def main(name):
     
@@ -262,7 +262,7 @@ def main(name):
     #save_sp500_tickers()
     #get_data_from_yahoo(True)
     
-    create_csv(name,start,end,'Unmodified')
+    #create_csv(name,start,end,'Unmodified')
     #read_csv(name,True,'Unmodified','close')
     read_new(name)
     #plt.show()
@@ -272,11 +272,10 @@ def main(name):
     #add_double_derivative(name) #Fix this
     #record_testing_results()
     #add_values()
-# =============================================================================
-#     
-# try:
-#     stock = 'A'
-#     main(stock)
-# except:
-#     main(stock)
-# =============================================================================
+
+     
+try:
+    stock = 'MA'
+    main(stock)
+except:
+    main(stock)

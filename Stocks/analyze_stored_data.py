@@ -26,10 +26,11 @@ def testing_rolling_data(df,ticker):
         rows.append(columns)
 
     fig=plt.figure(figsize=[20,10])
-    plt.imshow(rows)
-    plt.colorbar()
-    plt.title(str(ticker))
-    ax = plt.gca()
+    ax1=plt.subplot((10,5),(0,0),rowspan=5,columnspan=5,ylabel='Heat Map',\
+                    title=ticker)
+    ax1.imshow(rows)
+    ax1.colorbar()
+    ax = ax1.gca()
     ax.set_xticklabels(np.arange(-5,70,10))
     ax.set_xlabel('selling')
     ax.set_yticklabels(np.arange(-5,70,10))
@@ -86,4 +87,4 @@ def main():
             #df = add_rolling_average(df,80)
             #df = add_rolling_average(df,100)
             
-#rows = main()
+rows = main()

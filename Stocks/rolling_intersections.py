@@ -32,9 +32,9 @@ def testing_rolling_averages(df,ticker):
     ax.set_yticklabels(np.arange(-5,70,10))
     ax.set_ylabel('buying')
     #plt.show()
-    if not os.path.exists('Testing_inter/'):
-        os.mkdir('Testing_inter')
-    fig.savefig('Testing_inter/{}.png'.format(ticker),dpi=200,\
+    if not os.path.exists('../../Testing_inter/'):
+        os.mkdir('../../Testing_inter')
+    fig.savefig('../../Testing_inter/{}.png'.format(ticker),dpi=200,\
                 bbox_inches='tight')
     plt.close()
     

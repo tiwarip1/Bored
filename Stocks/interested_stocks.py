@@ -1,9 +1,10 @@
 from collect_intra_data import collect_data
 from visualization import save_sp500_tickers
-from google_intra_data import nasdaq,is_worktime
+from google_intra_data import is_worktime
 import os
 import time
 import datetime as dt
+import requests
 
 def initial_collect():
     
@@ -24,6 +25,9 @@ def collect_sp500():
             collect_data(i)
         except IndexError:
             continue
+        except requests.exceptions.ConnectionError:
+            time.sleep(300)
+            collect_data(i)
         time.sleep(5)
 
 def is_weekday():
