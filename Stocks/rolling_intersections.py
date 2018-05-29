@@ -2,13 +2,22 @@ import pandas as pd
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from analyze_stored_data import add_rolling_average
 
 '''This program is meant to analyze stock data when rolling averages intersect
 one another and find the most optimal one'''
 
+def add_rolling_average(df,n):
+    '''This is a general function that makes a rolling average over n
+    data points'''
+    
+    df['{}ma'.format(n)]=df['Close'].rolling(window=n*12,min_periods=0).mean()
+    return df
+
 def testing_rolling_averages(df,ticker):
     
+    max_total = 0
+    max_buy = 0
+    max_sell = 0
     rows = []
     for i in range(5,60,5):
         columns = []
@@ -19,7 +28,14 @@ def testing_rolling_averages(df,ticker):
             df1 = df
             df1 = add_rolling_average(df1,i)
             df1 = add_rolling_average(df1,j)
-            columns.append(correct_returns(df1,i,j))
+            thing = correct_returns(df1,i,j)
+            
+            if thing>max_total:
+                max_total=thing
+                max_buy=i
+                max_sell=j
+                
+            columns.append(thing)
         rows.append(columns)
 
     fig=plt.figure(figsize=[20,10])
@@ -37,6 +53,7 @@ def testing_rolling_averages(df,ticker):
     fig.savefig('../../Testing_inter/{}.png'.format(ticker),dpi=200,\
                 bbox_inches='tight')
     plt.close()
+    return max_buy,max_sell
     
 def correct_returns(df,buying,selling):
     
@@ -74,12 +91,23 @@ def correct_returns(df,buying,selling):
     return round(sum_total,3)
 
 def main():
-
+    
+    optimal_settings = {'Ticker':[],'Buy':[],'Sell':[]}
+    
     for file in os.listdir("../../stored_data/"):
         if file.endswith(".csv"):
             ticker = file[:file.find(".csv")]
             print(ticker)
             df = pd.read_csv('../../stored_data/{}.csv'.format(ticker))
-            testing_rolling_averages(df,ticker)
+            max_buy,max_sell = testing_rolling_averages(df,ticker)
+            optimal_settings['Ticker'].append(ticker)
+            optimal_settings['Buy'].append(max_buy)
+            optimal_settings['Sell'].append(max_sell)
+            print('Optimal settings are:',max_buy,max_sell)
+            del max_buy
+            del max_sell
+            
+    dfo = pd.DataFrame(data=optimal_settings)
+    dfo.to_csv('../../Testing_inter/optimal_settings.csv')
         
 main()    
