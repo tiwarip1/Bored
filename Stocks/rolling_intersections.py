@@ -77,6 +77,7 @@ def correct_returns(df,buying,selling):
         if sell_if_can==True and previous_row['{}ma'.format(selling)]<\
         previous_row['{}ma'.format(buying)] and row['{}ma'.format(selling)]>\
         row['{}ma'.format(buying)]:
+            
             sell_stock.append(Current_adj_close)
             sell_if_can=False
             
