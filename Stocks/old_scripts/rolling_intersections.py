@@ -10,7 +10,7 @@ def add_rolling_average(df,n):
     '''This is a general function that makes a rolling average over n
     data points'''
     
-    df['{}ma'.format(n)]=df['Close'].rolling(window=n*12,min_periods=0).mean()
+    df['{}ma'.format(n)]=df['Close'].rolling(window=n*72,min_periods=0).mean()
     return df
 
 def testing_rolling_averages(df,ticker):

@@ -19,7 +19,10 @@ def initial_collect():
 def collect_sp500():
     
     list_500 = save_sp500_tickers()
-    list_500.append('TSLA')
+
+    additional_stocks = ['TSLA','AMBD','SIN']
+    for i in additional_stocks:
+        list_500.append(i)
 
     for i in list_500:
         try:

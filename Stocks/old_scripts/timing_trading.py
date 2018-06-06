@@ -31,7 +31,7 @@ def buy_or_sell(df,buying,selling):
     previous_row = pd.DataFrame(columns=df.columns)
     previous_row = previous_row.fillna(0) # with 0s rather than NaNs
     sell_if_can=False
-    hour_range = 250
+    hour_range = 1
     
     for index,row in df.iterrows():
         
@@ -78,7 +78,7 @@ def parse_old_data(settings,ticker):
     try:
         buy = settings[mask]['Buy'].values[0]
     except:
-        print('{} is not present in the optimal settings'.format(ticker))
+        #print('{} is not present in the optimal settings'.format(ticker))
         return False
     sell = settings[mask]['Sell'].values[0]
 
@@ -88,13 +88,18 @@ def parse_old_data(settings,ticker):
     window = df.iloc[-76*sell+15:]
     window = add_rolling_average(window,buy)
     window = add_rolling_average(window,sell)
+
+    '''This section has been edited for testing, remove allowed for fully 
+    working program'''
+    allowed = ['ESS','TWX','UNH','ABBV','ESRX','MS','WMB','AKAM','ABC','EL','HRL']
     
     stuff = buy_or_sell(window,buy,sell)
     if stuff==None:
         pass
     elif stuff[0]=='buy':
-        print('Buy {} at {}'.format(ticker,stuff[1]))
-    elif stuff[0]=='sell':
+        #print('Buy {} at {}'.format(ticker,stuff[1]))
+        pass
+    elif stuff[0]=='sell' and ticker in allowed:
         print('Sell {} at {}'.format(ticker,stuff[1]))
     #print(buy_or_sell(window,sell,buy))
     '''
@@ -111,5 +116,6 @@ def main():
         if file.endswith(".csv"):
             ticker = file[:file.find(".csv")]
             parse_old_data(settings,ticker)
-    
-main()
+
+while True:
+    main()
