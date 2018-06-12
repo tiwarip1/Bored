@@ -13,14 +13,71 @@ import pickle
 
 '''This is a main python file that stores all the important functions to be called by other scripts'''
 
-def add_rolling_average(df,n):
+def add_rolling_average(df,n,name='ma',thing='Close',backwards=False):
     '''This is a general function that makes a rolling average over n
     data points'''
-    
-    df['{}ma'.format(n)]=df['Close'].rolling(window=n*12,min_periods=0).mean()
+    if backwards:
+        df['{}{}'.format(n,name)]=df[thing][::-1].rolling(window=n*12,min_periods=0).mean()
+    else:
+        df['{}{}'.format(n,name)]=df[thing].rolling(window=n*12,min_periods=0).mean()
     return df
 
 
+
+
+def save_tsx():
+    '''Basically copy pasted save_sp500_tickers and changed the url'''
+    
+    resp=requests.get('https://en.wikipedia.org/wiki/S%26P/TSX_Composite_Index')
+    soup = bs.BeautifulSoup(resp.text,'lxml')
+    table = soup.find('table',{'class':'wikitable sortable'})
+    stock_names = []
+    for row in table.findAll('tr')[1:]:
+        ticker = row.findAll('td')[0].text
+        stock_names.append(ticker)
+            
+    with open('tsxtickers.pickle','wb') as f:
+        pickle.dump(stock_names,f)
+    
+    return set(stock_names)
+
+
+
+
+def n_day_RSI(n,df):
+    '''Takes the RSI and plots it over an n-day period'''
+    
+    previous_row=0
+    gain=[]
+    loss=[]
+    
+    for index,row in df[-50:].iterrows():
+        
+        if previous_row!=0:
+            
+            if row['Close']<previous_row:
+                gain.append(0)
+                loss.append(-round(row['Close']-previous_row,2))
+            elif row['Close']>previous_row:
+                gain.append(round(row['Close']-previous_row,2))
+                loss.append(0)
+        
+        previous_row = row['Close']
+    
+    data = {'gain':gain,'loss':loss}
+    df1 = pd.DataFrame(data=data)
+    add_rolling_average(df1,n,'gain','gain',True)
+    add_rolling_average(df1,n,'loss','loss',True)
+    df1['RS']=df1['{}gain'.format(n)]/df1['{}loss'.format(n)]
+    df1['RSI']=100-100/(1+df1['RS'])
+    #fig=plt.figure(figsize=[20,10])
+    plt.plot(df1['RSI'])
+    ax=plt.gca()
+    ax.set_ylim(min(df1['RSI']),max(df1['RSI']))
+    ax.set_xlim(0,len(df1['RSI']))
+    plt.show()
+    
+    
 
 
 def collect_sp500():
@@ -28,9 +85,18 @@ def collect_sp500():
     
     list_500 = save_sp500_tickers()
 
-    additional_stocks = ['TSLA','AMBD','SIN']
+    additional_stocks = ('TSLA','AMBD','SIN')
+    additional_stocks = additional_stocks+save_tsx()
+    
+    which_section = int(input("1 or 2? "))
+    
     for i in additional_stocks:
         list_500.append(i)
+
+    if which_section==1:
+        list_500= list_500[:int(len(list_500)/2)]
+    elif which_section==2:
+        list_500=list_500[int(len(list_500)/2):]
 
     for i in list_500:
         try:
@@ -68,7 +134,9 @@ def save_sp500_tickers():
 
 
 def testing_rolling_data(df,ticker):
-    '''This goes over each item in stored data and uses rolling averages between 5 and 55 and finds how much profit would be made if a stock were bought or sold at those settings by calling check_rolling_returns'''
+    '''This goes over each item in stored data and uses rolling averages 
+    between 5 and 55 and finds how much profit would be made if a stock were 
+    bought or sold at those settings by calling check_rolling_returns'''
     
     rows = []
     for i in range(5,60,5):
@@ -581,7 +649,7 @@ def parse_old_data(settings,ticker):
     try:
         buy = settings[mask]['Buy'].values[0]
     except:
-        #print('{} is not present in the optimal settings'.format(ticker))
+        print('{} is not present in the optimal settings'.format(ticker))
         return False
     sell = settings[mask]['Sell'].values[0]
 
@@ -591,18 +659,14 @@ def parse_old_data(settings,ticker):
     window = df.iloc[-76*sell+15:]
     window = add_rolling_average(window,buy)
     window = add_rolling_average(window,sell)
-
-    '''This section has been edited for testing, remove allowed for fully 
-    working program'''
-    allowed = ['ESS','TWX','UNH','ABBV','ESRX','MS','WMB','AKAM','ABC','EL','HRL']
     
     stuff = buy_or_sell(window,buy,sell)
     if stuff==None:
         pass
     elif stuff[0]=='buy':
-        #print('Buy {} at {}'.format(ticker,stuff[1]))
+        print('Buy {} at {}'.format(ticker,stuff[1]))
         pass
-    elif stuff[0]=='sell' and ticker in allowed:
+    elif stuff[0]=='sell':
         print('Sell {} at {}'.format(ticker,stuff[1]))
     #print(buy_or_sell(window,sell,buy))
     '''

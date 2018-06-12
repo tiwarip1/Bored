@@ -13,7 +13,7 @@ def main():
     
     '''Takes the optimal settings for rolling averages'''
     settings = optimal_settings()
-    for file in os.listdir("../../stored_data/"):
+    for file in os.listdir("../../../stored_data/"):
         if file.endswith(".csv"):
             ticker = file[:file.find(".csv")]
             parse_old_data(settings,ticker)
