@@ -1,8 +1,5 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-import datetime as dt
 import os
-from functions import *
+from functions import parse_old_data,optimal_settings
 
 '''This program will take the data that is stored and repeatedly parse through
 it using the optimal setting for rolling averages and using the intersection

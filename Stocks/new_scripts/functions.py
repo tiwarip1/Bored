@@ -10,8 +10,63 @@ import re
 import csv
 import codecs
 import pickle
+import pandas_datareader as web
 
-'''This is a main python file that stores all the important functions to be called by other scripts'''
+'''This is a main python file that stores all the important functions to be 
+called by other scripts'''
+
+def bollinger():
+    '''This function iterates over the dataset and checks to see which stocks
+    are below their bolinger band to see if they are oversold'''
+    
+    tsx_stocks = save_tsx()
+    
+    for file in os.listdir("../../../stored_data/"):
+        if file.endswith(".csv"):
+            ticker = file[:file.find(".csv")]
+            df = pd.read_csv('../../../stored_data/{}.csv'.format(ticker))
+            
+            std=20
+            df = create_bollinger(df,std)
+            if df['{} lower'.format(std)].iloc[-1]>df['Close'].iloc[-1] and\
+            ticker in tsx_stocks:
+                print('You should buy {}'.format(ticker))
+                
+    
+    
+    
+def create_bollinger(df,std):
+    '''This function uses a provided dataframe and adds bollinger bands for
+    the upper and lower bounds to the end of the columns'''
+
+    df['{} std'.format(std)] = df['Close'].rolling(window=72*20,min_periods=0).std()
+    df['{} mean'.format(std)] = df['Close'].rolling(window=72*20,min_periods=0).mean()
+    df['{} upper'.format(std)] = df['{} mean'.format(std)]+2*df['{} std'.format(std)]
+    df['{} lower'.format(std)] = df['{} mean'.format(std)]-2*df['{} std'.format(std)]
+    df = df.iloc[1:]
+    df = remove_unwanted_columns(df,'{} std'.format(std))
+    df = remove_unwanted_columns(df,'{} mean'.format(std))
+    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+    return df
+
+
+def daily_close(stock='TSLA',start=dt.datetime(2013,1,1)):
+    '''This function takes the closing data at the end of the day for a number
+    of stocks and stores them, this will be used to analysis over longer time
+    frames'''
+
+    now = dt.datetime.now()
+    end=dt.datetime(now.year,now.month,now.day)
+    
+    dataframe = web.DataReader(stock,'iex',start,end)
+    
+    if not os.path.exists('../../../daily_close'):
+        os.makedirs('../../../daily_close')
+    
+    dataframe.to_csv('../../../daily_close/{}.csv'.format(stock))
+
+
+
 
 def add_rolling_average(df,n,name='ma',thing='Close',backwards=False):
     '''This is a general function that makes a rolling average over n
@@ -44,14 +99,14 @@ def save_tsx():
 
 
 
-def n_day_RSI(n,df):
+def n_day_RSI(n,df,plot=False):
     '''Takes the RSI and plots it over an n-day period'''
     
     previous_row=0
     gain=[]
     loss=[]
     
-    for index,row in df[-50:].iterrows():
+    for index,row in df[-100:].iterrows():
         
         if previous_row!=0:
             
@@ -70,28 +125,42 @@ def n_day_RSI(n,df):
     add_rolling_average(df1,n,'loss','loss',True)
     df1['RS']=df1['{}gain'.format(n)]/df1['{}loss'.format(n)]
     df1['RSI']=100-100/(1+df1['RS'])
-    #fig=plt.figure(figsize=[20,10])
-    plt.plot(df1['RSI'])
-    ax=plt.gca()
-    ax.set_ylim(min(df1['RSI']),max(df1['RSI']))
-    ax.set_xlim(0,len(df1['RSI']))
-    plt.show()
+    
+    if plot:
+        #fig=plt.figure(figsize=[20,10])
+        plt.plot(df1['RSI'])
+        ax=plt.gca()
+        ax.set_ylim(min(df1['RSI']),max(df1['RSI']))
+        ax.set_xlim(0,len(df1['RSI']))
+        plt.show()
+        
+    return df1
     
     
 
 
-def collect_sp500():
-    '''Collects the stocks from the sp500'''
+def get_all_tickers():
+    '''This function takes all the tickers from each exchange that we are 
+    interested in'''
     
     list_500 = save_sp500_tickers()
 
     additional_stocks = ('TSLA','AMBD','SIN')
     additional_stocks = additional_stocks+save_tsx()
     
-    which_section = int(input("1 or 2? "))
-    
     for i in additional_stocks:
         list_500.append(i)
+
+    return list_500
+
+
+
+def collect_sp500():
+    '''Collects the stocks from the sp500'''
+    
+    which_section = int(input("1 or 2? "))
+    
+    list_500 = get_all_tickers()
 
     if which_section==1:
         list_500= list_500[:int(len(list_500)/2)]
