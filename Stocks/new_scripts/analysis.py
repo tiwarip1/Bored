@@ -1,3 +1,3 @@
 from functions import bollinger
 
-bollinger()
+bollinger(20)

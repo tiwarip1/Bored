@@ -15,7 +15,7 @@ import pandas_datareader as web
 '''This is a main python file that stores all the important functions to be 
 called by other scripts'''
 
-def bollinger():
+def bollinger(std=20,tsx=False,plot=False):
     '''This function iterates over the dataset and checks to see which stocks
     are below their bolinger band to see if they are oversold'''
     
@@ -26,12 +26,22 @@ def bollinger():
             ticker = file[:file.find(".csv")]
             df = pd.read_csv('../../../stored_data/{}.csv'.format(ticker))
             
-            std=20
             df = create_bollinger(df,std)
-            if df['{} lower'.format(std)].iloc[-1]>df['Close'].iloc[-1] and\
-            ticker in tsx_stocks:
-                print('You should buy {}'.format(ticker))
+            try:
+                if df['{} lower'.format(std)].iloc[-1]>df['Close'].iloc[-1]:
+                    if ticker in tsx_stocks:
+                        print('You should buy {}'.format(ticker))
+            except KeyError:
+                if df['{} lower'.format(std)].iloc[-1]>df['close'].iloc[-1]:
+                    if ticker in tsx_stocks:
+                        print('You should buy {}'.format(ticker))
                 
+                        plt.plot(df['close'])
+                        plt.plot(df['{} upper'.format(std)])
+                        plt.plot(df['{} lower'.format(std)])
+                        plt.show()
+
+    
     
     
     
@@ -39,8 +49,12 @@ def create_bollinger(df,std):
     '''This function uses a provided dataframe and adds bollinger bands for
     the upper and lower bounds to the end of the columns'''
 
-    df['{} std'.format(std)] = df['Close'].rolling(window=72*20,min_periods=0).std()
-    df['{} mean'.format(std)] = df['Close'].rolling(window=72*20,min_periods=0).mean()
+    try:
+        df['{} std'.format(std)] = df['Close'].rolling(window=std,min_periods=0).std()
+        df['{} mean'.format(std)] = df['Close'].rolling(window=std,min_periods=0).mean()
+    except KeyError:
+        df['{} std'.format(std)] = df['close'].rolling(window=std,min_periods=0).std()
+        df['{} mean'.format(std)] = df['close'].rolling(window=std,min_periods=0).mean()
     df['{} upper'.format(std)] = df['{} mean'.format(std)]+2*df['{} std'.format(std)]
     df['{} lower'.format(std)] = df['{} mean'.format(std)]-2*df['{} std'.format(std)]
     df = df.iloc[1:]
@@ -94,7 +108,7 @@ def save_tsx():
     with open('tsxtickers.pickle','wb') as f:
         pickle.dump(stock_names,f)
     
-    return set(stock_names)
+    return stock_names
 
 
 
@@ -145,7 +159,7 @@ def get_all_tickers():
     
     list_500 = save_sp500_tickers()
 
-    additional_stocks = ('TSLA','AMBD','SIN')
+    additional_stocks = ['TSLA','AMBD','SIN']
     additional_stocks = additional_stocks+save_tsx()
     
     for i in additional_stocks:
@@ -331,6 +345,7 @@ def get_google_finance_intraday(ticker, period=300, days=60):
                                                       int(row[0])))
                 rows.append(map(float, row[1:]))
     if len(rows):
+        print(rows[0])
         try:
             return pd.DataFrame(rows, index=pd.DatetimeIndex(times, name='Date'),
                             columns=columns)
@@ -351,7 +366,9 @@ def get_google_finance_intraday(ticker, period=300, days=60):
 
 
 def collect_data(ticker):
-    '''This function will add data to a database over time and does all the dirty work of collecting data and parsing everything to make it look nice and removing the unecessary stuff'''
+    '''This function will add data to a database over time and does all the 
+    dirty work of collecting data and parsing everything to make it look nice 
+    and removing the unecessary stuff'''
     
     cont = True
     
@@ -541,12 +558,12 @@ def initial_collect():
 
 
 
-def update_data_every_n_minutes(n):
+def update_data_every_n_minutes(n,override = False):
     '''Updates data collection to happen every n minutes, currently only for the SP 500'''
     
     while True:
         tock = time.time()
-        if is_worktime() :
+        if is_worktime() or override:
             print('yaas')
             try:
                 collect_sp500()
@@ -555,7 +572,10 @@ def update_data_every_n_minutes(n):
                 return
         print('sleepytime')
         tick=time.time()
-
+        
+        if override:
+            break
+        
         if tick-tock<n*60:
             time.sleep(n*60-(tick-tock))
 
