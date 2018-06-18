@@ -169,10 +169,8 @@ def get_all_tickers():
 
 
 
-def collect_sp500():
+def collect_sp500(which_section):
     '''Collects the stocks from the sp500'''
-    
-    which_section = int(input("1 or 2? "))
     
     list_500 = get_all_tickers()
 
@@ -345,7 +343,6 @@ def get_google_finance_intraday(ticker, period=300, days=60):
                                                       int(row[0])))
                 rows.append(map(float, row[1:]))
     if len(rows):
-        print(rows[0])
         try:
             return pd.DataFrame(rows, index=pd.DatetimeIndex(times, name='Date'),
                             columns=columns)
@@ -560,13 +557,14 @@ def initial_collect():
 
 def update_data_every_n_minutes(n,override = False):
     '''Updates data collection to happen every n minutes, currently only for the SP 500'''
-    
+
+    which_section = int(input("1 or 2? "))
     while True:
         tock = time.time()
         if is_worktime() or override:
             print('yaas')
             try:
-                collect_sp500()
+                collect_sp500(which_section)
             except KeyboardInterrupt:
                 print('Manual break by user')
                 return
