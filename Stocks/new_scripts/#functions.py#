@@ -107,7 +107,7 @@ def save_tsx():
     stock_names = []
     for row in table.findAll('tr')[1:]:
         ticker = row.findAll('td')[0].text
-        stock_names.append('{}'.format(ticker))
+        stock_names.append(ticker)
             
     with open('tsxtickers.pickle','wb') as f:
         pickle.dump(stock_names,f)

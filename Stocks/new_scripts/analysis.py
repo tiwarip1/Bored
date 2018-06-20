@@ -1,3 +1,5 @@
 from functions import bollinger
 
-bollinger(20)
+ran = input("Over what range? ")
+
+bollinger(ran,True)
