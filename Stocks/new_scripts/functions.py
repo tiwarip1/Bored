@@ -50,6 +50,7 @@ def bollinger(std=20,tsx=False,plot=False):
 def create_bollinger(df,std):
     '''This function uses a provided dataframe and adds bollinger bands for
     the upper and lower bounds to the end of the columns'''
+    
     if len(df)<3:
         return pd.DataFrame({'A':[]})
     try:
@@ -68,7 +69,7 @@ def create_bollinger(df,std):
     return df
 
 
-def daily_close(stock='TSLA',start=dt.datetime(2013,1,1)):
+def daily_close(stock='TSLA',start=dt.datetime(2013,1,1),location='../../../daily_close'):
     '''This function takes the closing data at the end of the day for a number
     of stocks and stores them, this will be used to analysis over longer time
     frames'''
@@ -78,10 +79,10 @@ def daily_close(stock='TSLA',start=dt.datetime(2013,1,1)):
     
     dataframe = web.DataReader(stock,'iex',start,end)
     
-    if not os.path.exists('../../../daily_close'):
-        os.makedirs('../../../daily_close')
+    if not os.path.exists('{}'.format(location)):
+        os.makedirs('{}'.format(location))
     
-    dataframe.to_csv('../../../daily_close/{}.csv'.format(stock))
+    dataframe.to_csv('{}/{}.csv'.format(location,stock))
 
 
 
