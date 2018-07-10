@@ -15,6 +15,47 @@ import pandas_datareader as web
 '''This is a main python file that stores all the important functions to be 
 called by other scripts'''
 
+def create_derivative(df,original):
+    '''This function takes the first derivative of a column from a dataframe'''
+    
+    progenitor = np.array(df[original])
+    derivative = np.gradient(progenitor)*8
+    #derivative = np.insert(derivative,0,0,axis=0)
+    df['d{}'.format(original)] = derivative
+    return df
+
+def create_exponential_moving_average(df,window=20):
+    '''This takes in a dataframe and adds another column to it which signifies
+    the exponential moving average'''
+    
+    ema = []
+    previous_row=pd.DataFrame()
+    
+    multiplier = 2/(window+1)
+    
+    for index,row in df.iterrows():
+        if previous_row.empty:
+            try:
+                ema.append(row['Close'])
+            except KeyError:
+                ema.append(row['close'])
+        else:
+            try:
+                ema.append((row['Close']-previous_row['Close'])*multiplier+\
+                           previous_row['Close'])
+            except KeyError:
+                ema.append((row['close']-previous_row['close'])*multiplier+\
+                           previous_row['close'])
+                
+        previous_row=row
+             
+    df['{}ema'.format(window)]=ema
+    df = remove_unwanted_columns(df,'Date.1')
+    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+
+    return df
+    
+
 def bollinger(std=20,tsx=False,plot=False):
     '''This function iterates over the dataset and checks to see which stocks
     are below their bolinger band to see if they are oversold'''
