@@ -169,15 +169,24 @@ def n_day_RSI(n,df,plot=False):
     for index,row in df[-100:].iterrows():
         
         if previous_row!=0:
-            
-            if row['Close']<previous_row:
-                gain.append(0)
-                loss.append(-round(row['Close']-previous_row,2))
-            elif row['Close']>previous_row:
-                gain.append(round(row['Close']-previous_row,2))
-                loss.append(0)
-        
-        previous_row = row['Close']
+            try:
+                if row['Close']<previous_row:
+                    gain.append(0)
+                    loss.append(-round(row['Close']-previous_row,2))
+                elif row['Close']>previous_row:
+                    gain.append(round(row['Close']-previous_row,2))
+                    loss.append(0)
+            except KeyError:
+                if row['close']<previous_row:
+                    gain.append(0)
+                    loss.append(-round(row['close']-previous_row,2))
+                elif row['close']>previous_row:
+                    gain.append(round(row['close']-previous_row,2))
+                    loss.append(0)
+        try:
+            previous_row = row['Close']
+        except KeyError:
+            previous_row = row['close']
     
     data = {'gain':gain,'loss':loss}
     df1 = pd.DataFrame(data=data)
@@ -185,6 +194,7 @@ def n_day_RSI(n,df,plot=False):
     add_rolling_average(df1,n,'loss','loss',True)
     df1['RS']=df1['{}gain'.format(n)]/df1['{}loss'.format(n)]
     df1['RSI']=100-100/(1+df1['RS'])
+    df['RSI']=df1['RSI']
     
     if plot:
         #fig=plt.figure(figsize=[20,10])
@@ -194,7 +204,7 @@ def n_day_RSI(n,df,plot=False):
         ax.set_xlim(0,len(df1['RSI']))
         plt.show()
         
-    return df1
+    return df
     
     
 
